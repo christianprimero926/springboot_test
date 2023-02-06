@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @SpringBootTest
 class SpringbootTestApplicationTests {
@@ -60,6 +61,9 @@ class SpringbootTestApplicationTests {
 
         verify(bankRepository, times(2)).findById(1L);
         verify(bankRepository).update(any(Bank.class));
+
+        verify(accountRepository, times(6)).findById(anyLong());
+        verify(accountRepository, never()).findAll();
     }
 
     @Test
@@ -73,8 +77,8 @@ class SpringbootTestApplicationTests {
         assertEquals("1000", sourceBalance.toPlainString());
         assertEquals("2000", targetBalance.toPlainString());
 
-        assertThrows(InsufficientMoneyException.class, ()->{
-        service.transfer(1L, 2L, new BigDecimal(1200), 1L);
+        assertThrows(InsufficientMoneyException.class, () -> {
+            service.transfer(1L, 2L, new BigDecimal(1200), 1L);
         });
 
         sourceBalance = service.checkBalnce(1L);
@@ -91,6 +95,25 @@ class SpringbootTestApplicationTests {
 
         verify(bankRepository).findById(1L);
         verify(bankRepository, never()).update(any(Bank.class));
+
+        verify(accountRepository, never()).findAll();
+        verify(accountRepository, times(5)).findById(anyLong());
     }
 
+    @Test
+    void contextLoads3() {
+        when(accountRepository.findById(1L)).thenReturn(createAccount001());
+
+        Account account1 = service.findById(1L);
+        Account account2 = service.findById(1L);
+
+        assertSame(account1, account2);
+
+        assertTrue(Objects.equals(account1, account2));
+        assertTrue(account1 == account2);
+        assertEquals("Andres", account1.getPerson());
+        assertEquals("Andres", account2.getPerson());
+        
+        verify(accountRepository, times(2)).findById(1L);
+    }
 }
