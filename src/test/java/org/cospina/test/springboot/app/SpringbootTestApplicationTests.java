@@ -3,6 +3,8 @@ package org.cospina.test.springboot.app;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.cospina.test.springboot.app.models.Account;
+import org.cospina.test.springboot.app.models.Bank;
 import org.cospina.test.springboot.app.repositories.AccountRepository;
 import org.cospina.test.springboot.app.repositories.BankRepository;
 import org.cospina.test.springboot.app.services.AccountService;
@@ -45,7 +47,15 @@ class SpringbootTestApplicationTests {
         assertEquals("900", sourceBalance.toPlainString());
         assertEquals("2100", targetBalance.toPlainString());
 
-        
+        int total = service.checkTotalTranfers(1L);
+        assertEquals(1, total);
+        verify(accountRepository, times(3)).findById(1L);
+        verify(accountRepository, times(3)).findById(2L);
+        verify(accountRepository, times(2)).update(any(Account.class));
+
+        verify(bankRepository, times(2)).findById(1L);
+        verify(bankRepository).update(any(Bank.class));
+
     }
 
 }
