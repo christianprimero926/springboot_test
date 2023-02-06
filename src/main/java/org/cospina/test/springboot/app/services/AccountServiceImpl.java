@@ -34,8 +34,9 @@ public class AccountServiceImpl implements  AccountService{
     }
 
     @Override
-    public void transfer(Long nSourceAccount, Long nTargetAccount, BigDecimal amount) {
-        Bank bank = bankRepository.findById(1L);
+    public void transfer(Long nSourceAccount, Long nTargetAccount, BigDecimal amount,
+                         Long bankId) {
+        Bank bank = bankRepository.findById(bankId);
         int totalTransfers = bank.getTotalTranfers();
         bank.setTotalTranfers(++totalTransfers);
         bankRepository.update(bank);
