@@ -1,11 +1,16 @@
 package org.cospina.test.springboot.app.models;
 
+import jakarta.persistence.*;
 import org.cospina.test.springboot.app.exceptions.InsufficientMoneyException;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Entity
+@Table(name = "accounts")
 public class Account {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String person;
     private BigDecimal balance;
