@@ -25,7 +25,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public int checkTotalTranfers(Long bankId) {
-        Bank bank = bankRepository.findById(bankId);
+        Bank bank = bankRepository.findById(bankId).orElseThrow();
         return bank.getTotalTranfers();
     }
 
@@ -46,9 +46,9 @@ public class AccountServiceImpl implements AccountService {
         targerAccount.credit(amount);
         accountRepository.save(targerAccount);
 
-        Bank bank = bankRepository.findById(bankId);
+        Bank bank = bankRepository.findById(bankId).orElseThrow();
         int totalTransfers = bank.getTotalTranfers();
         bank.setTotalTranfers(++totalTransfers);
-        bankRepository.update(bank);
+        bankRepository.save(bank);
     }
 }
