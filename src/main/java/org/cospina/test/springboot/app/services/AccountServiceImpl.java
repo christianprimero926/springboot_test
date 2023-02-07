@@ -4,10 +4,12 @@ import org.cospina.test.springboot.app.models.Account;
 import org.cospina.test.springboot.app.models.Bank;
 import org.cospina.test.springboot.app.repositories.AccountRepository;
 import org.cospina.test.springboot.app.repositories.BankRepository;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-public class AccountServiceImpl implements  AccountService{
+@Service
+public class AccountServiceImpl implements AccountService {
     private AccountRepository accountRepository;
     private BankRepository bankRepository;
 

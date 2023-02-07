@@ -1,34 +1,38 @@
 package org.cospina.test.springboot.app;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.cospina.test.springboot.app.Data.*;
-
 import org.cospina.test.springboot.app.exceptions.InsufficientMoneyException;
 import org.cospina.test.springboot.app.models.Account;
 import org.cospina.test.springboot.app.models.Bank;
 import org.cospina.test.springboot.app.repositories.AccountRepository;
 import org.cospina.test.springboot.app.repositories.BankRepository;
 import org.cospina.test.springboot.app.services.AccountService;
-import org.cospina.test.springboot.app.services.AccountServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
+import static org.cospina.test.springboot.app.Data.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 @SpringBootTest
 class SpringbootTestApplicationTests {
+    @MockBean
     AccountRepository accountRepository;
+    @MockBean
     BankRepository bankRepository;
+    @Autowired
     AccountService service;
 
     @BeforeEach
     void setUp() {
-        accountRepository = mock(AccountRepository.class);
-        bankRepository = mock(BankRepository.class);
-        service = new AccountServiceImpl(accountRepository, bankRepository);
+//        accountRepository = mock(AccountRepository.class);
+//        bankRepository = mock(BankRepository.class);
+//        service = new AccountServiceImpl(accountRepository, bankRepository);
 //        Data.ACCOUNT_001.setBalance(new BigDecimal("1000"));
 //        Data.ACCOUNT_002.setBalance(new BigDecimal("2000"));
 //        Data.BANK.setTotalTranfers(0);
@@ -113,7 +117,7 @@ class SpringbootTestApplicationTests {
         assertTrue(account1 == account2);
         assertEquals("Andres", account1.getPerson());
         assertEquals("Andres", account2.getPerson());
-        
+
         verify(accountRepository, times(2)).findById(1L);
     }
 }
