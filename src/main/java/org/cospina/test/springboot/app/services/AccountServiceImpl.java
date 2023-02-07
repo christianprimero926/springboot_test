@@ -20,7 +20,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public Account findById(Long id) {
-        return accountRepository.findById(id);
+        return accountRepository.findById(id).orElseThrow();
     }
 
     @Override
@@ -31,20 +31,20 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public BigDecimal checkBalnce(Long accountId) {
-        Account account = accountRepository.findById(accountId);
+        Account account = accountRepository.findById(accountId).orElseThrow();
         return account.getBalance();
     }
 
     @Override
     public void transfer(Long nSourceAccount, Long nTargetAccount, BigDecimal amount,
                          Long bankId) {
-        Account sourceAccount = accountRepository.findById(nSourceAccount);
+        Account sourceAccount = accountRepository.findById(nSourceAccount).orElseThrow();
         sourceAccount.debit(amount);
-        accountRepository.update(sourceAccount);
+        accountRepository.save(sourceAccount);
 
-        Account targerAccount = accountRepository.findById(nTargetAccount);
+        Account targerAccount = accountRepository.findById(nTargetAccount).orElseThrow();
         targerAccount.credit(amount);
-        accountRepository.update(targerAccount);
+        accountRepository.save(targerAccount);
 
         Bank bank = bankRepository.findById(bankId);
         int totalTransfers = bank.getTotalTranfers();
