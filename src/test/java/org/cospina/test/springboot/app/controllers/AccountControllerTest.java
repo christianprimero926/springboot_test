@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.cospina.test.springboot.app.Data.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -110,5 +110,29 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$[1].balance").value("2000"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(content().json(objectMapper.writeValueAsString(accounts)));
+
+        verify(accountService).findAll();
+    }
+
+    @Test
+    void testSave() throws Exception {
+        // Given
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+        when(accountService.save(any())).then(invocation -> {
+            Account c = invocation.getArgument(0);
+            c.setId(3L);
+            return c;
+        });
+
+        //When
+        mvc.perform(post("/api/accounts").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(account)))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(3)))
+                .andExpect(jsonPath("$.person", is("Pepe")))
+                .andExpect(jsonPath("$.balance", is(3000)));
+
+        verify(accountService).save(any());
     }
 }
