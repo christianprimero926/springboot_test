@@ -1,8 +1,8 @@
 package org.cospina.test.springboot.app.models;
 
-import jakarta.persistence.*;
 import org.cospina.test.springboot.app.exceptions.InsufficientMoneyException;
 
+import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Objects;
 

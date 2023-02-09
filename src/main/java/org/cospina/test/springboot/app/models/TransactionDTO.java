@@ -3,10 +3,10 @@ package org.cospina.test.springboot.app.models;
 import java.math.BigDecimal;
 
 public class TransactionDTO {
+    private Long bankId;
     private Long sourceAccountId;
     private Long targetAccountId;
     private BigDecimal amount;
-    private Long bankId;
 
     public Long getSourceAccountId() {
         return sourceAccountId;

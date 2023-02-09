@@ -1,6 +1,6 @@
 package org.cospina.test.springboot.app.models;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "banks")
