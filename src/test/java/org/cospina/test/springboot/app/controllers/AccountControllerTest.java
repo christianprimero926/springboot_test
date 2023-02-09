@@ -70,7 +70,7 @@ class AccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.date").value(LocalDate.now().toString()))
                 .andExpect(jsonPath("$.message").value("Transferencia realizada con exito"))
-                .andExpect(jsonPath("$.transaction.sourceAccountId").value(1L));
+                .andExpect(jsonPath("$.transaction.sourceAccountId").value(dto.getSourceAccountId()));
 
     }
 }
