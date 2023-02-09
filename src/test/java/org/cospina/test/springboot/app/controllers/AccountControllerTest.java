@@ -14,6 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.cospina.test.springboot.app.Data.*;
@@ -60,6 +62,16 @@ class AccountControllerTest {
         dto.setAmount(new BigDecimal("100"));
         dto.setBankId(1L);
 
+        System.out.println(objectMapper.writeValueAsString(dto));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("date", LocalDate.now().toString());
+        response.put("status", "ok");
+        response.put("message", "Transferencia realizada con exito");
+        response.put("transaction", dto);
+
+        System.out.println(objectMapper.writeValueAsString(response));
+
         //When
         mvc.perform(post("/api/accounts/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +82,8 @@ class AccountControllerTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.date").value(LocalDate.now().toString()))
                 .andExpect(jsonPath("$.message").value("Transferencia realizada con exito"))
-                .andExpect(jsonPath("$.transaction.sourceAccountId").value(dto.getSourceAccountId()));
+                .andExpect(jsonPath("$.transaction.sourceAccountId").value(dto.getSourceAccountId()))
+                .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
     }
 }
