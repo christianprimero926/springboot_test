@@ -142,5 +142,24 @@ class SpringbootTestApplicationTests {
 
     @Test
     void testSave() {
+        // Given
+        Account accountPepe = new Account(null, "Pepe", new BigDecimal("3000"));
+        when(accountRepository.save(accountPepe)).then(invocation -> {
+           Account c = invocation.getArgument(0);
+           c.setId(3L);
+           return c;
+        });
+
+        // When
+        Account account = service.save(accountPepe);
+
+        //Then
+        assertEquals("Pepe", account.getPerson());
+        assertEquals(3L, account.getId());
+        assertEquals("3000", account.getBalance().toPlainString());
+
+        verify(accountRepository).save(any());
+
+
     }
 }

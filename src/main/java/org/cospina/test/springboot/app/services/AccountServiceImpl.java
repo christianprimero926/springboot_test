@@ -22,6 +22,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Account> findAll() {
         return accountRepository.findAll();
     }
@@ -33,8 +34,9 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public Account save(Account account) {
-        return null;
+        return accountRepository.save(account);
     }
 
     @Override
