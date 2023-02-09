@@ -2,6 +2,7 @@ package org.cospina.test.springboot.app.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cospina.test.springboot.app.models.Account;
 import org.cospina.test.springboot.app.models.TransactionDTO;
 import org.cospina.test.springboot.app.services.AccountService;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,9 +15,12 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.cospina.test.springboot.app.Data.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -44,7 +48,7 @@ class AccountControllerTest {
 
         // When
         mvc.perform(get("/api/accounts/1").contentType(MediaType.APPLICATION_JSON))
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.person").value("Andres"))
@@ -74,10 +78,10 @@ class AccountControllerTest {
 
         //When
         mvc.perform(post("/api/accounts/transfer")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(dto)))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(dto)))
 
-        // Then
+                // Then
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.date").value(LocalDate.now().toString()))
@@ -85,5 +89,26 @@ class AccountControllerTest {
                 .andExpect(jsonPath("$.transaction.sourceAccountId").value(dto.getSourceAccountId()))
                 .andExpect(content().json(objectMapper.writeValueAsString(response)));
 
+    }
+
+    @Test
+    void testShowAll() throws Exception {
+        List<Account> accounts = Arrays.asList(createAccount001().orElseThrow(),
+                createAccount002().orElseThrow()
+        );
+        when(accountService.findAll()).thenReturn(accounts);
+
+        // When
+        mvc.perform(get("/api/accounts").contentType(MediaType.APPLICATION_JSON))
+
+                // Then
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$[0].person").value("Andres"))
+                .andExpect(jsonPath("$[1].person").value("Jhon"))
+                .andExpect(jsonPath("$[0].balance").value("1000"))
+                .andExpect(jsonPath("$[1].balance").value("2000"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(content().json(objectMapper.writeValueAsString(accounts)));
     }
 }

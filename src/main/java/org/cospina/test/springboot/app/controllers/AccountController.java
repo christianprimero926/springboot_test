@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -19,10 +20,22 @@ public class AccountController {
     @Autowired
     private AccountService accountService;
 
+    @GetMapping
+    @ResponseStatus(OK)
+    public List<Account> showAll() {
+        return accountService.findAll();
+    }
+
     @GetMapping("/{id}")
     @ResponseStatus(OK)
     public Account detail(@PathVariable(name = "id") Long id) {
         return accountService.findById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(CREATED)
+    public Account save(@RequestBody Account account){
+        return null;
     }
 
     @PostMapping("/transfer")
