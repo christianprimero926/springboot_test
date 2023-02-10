@@ -1,16 +1,18 @@
 package org.cospina.test.springboot.app.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cospina.test.springboot.app.models.Account;
 import org.cospina.test.springboot.app.models.TransactionDTO;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -21,6 +23,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class AccountControllerWebTestClientTests {
     @Autowired
@@ -33,6 +36,7 @@ class AccountControllerWebTestClientTests {
         objectMapper = new ObjectMapper();
     }
 
+    @Order(1)
     @Test
     void testTransfer() throws JsonProcessingException {
         // Given
@@ -49,12 +53,29 @@ class AccountControllerWebTestClientTests {
         response.put("transaction", dto);
 
         // When
-        client.post().uri("http://localhost:8080/api/accounts/transfer")
+        client.post().uri("/api/accounts/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(dto)
                 .exchange()
+
+                // Then
                 .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+//                .expectBody(String.class)
                 .expectBody()
+                .consumeWith(resp -> {
+                    try {
+//                        String jsonStr = resp.getResponseBody();
+//                        JsonNode json = objectMapper.readTree(jsonStr);
+                        JsonNode json = objectMapper.readTree(resp.getResponseBody());
+                        assertEquals("Transferencia realizada con exito", json.path("message").asText());
+                        assertEquals(1L, json.path("transaction").path("sourceAccountId").asLong());
+                        assertEquals(LocalDate.now().toString(), json.path("date").asText());
+                        assertEquals("100", json.path("transaction").path("amount").asText());
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
                 .jsonPath("$.message").isNotEmpty()
                 .jsonPath("$.message").value(is("Transferencia realizada con exito"))
                 .jsonPath("$.message").value(value -> assertEquals("Transferencia realizada con exito", value))
@@ -62,5 +83,34 @@ class AccountControllerWebTestClientTests {
                 .jsonPath("$.transaction.sourceAccountId").isEqualTo(dto.getSourceAccountId())
                 .jsonPath("$.date").isEqualTo(LocalDate.now().toString())
                 .json(objectMapper.writeValueAsString(response));
+    }
+
+    @Order(2)
+    @Test
+    void testDetail() throws JsonProcessingException {
+        Account account = new Account(1L, "Andres", new BigDecimal("900"));
+
+        client.get().uri("api/accounts/1").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.person").isEqualTo("Andres")
+                .jsonPath("$.balance").isEqualTo(900)
+                .json(objectMapper.writeValueAsString(account));
+    }
+
+    @Order(3)
+    @Test
+    void testDetail2() {
+        client.get().uri("api/accounts/2").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(Account.class)
+                .consumeWith(resp -> {
+                    Account account = resp.getResponseBody();
+                    assertEquals("Jhon", account.getPerson());
+                    assertEquals("2100.00", account.getBalance().toPlainString());
+                })
+        ;
     }
 }
