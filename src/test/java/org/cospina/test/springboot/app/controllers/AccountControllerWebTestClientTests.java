@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
@@ -112,5 +113,44 @@ class AccountControllerWebTestClientTests {
                     assertEquals("2100.00", account.getBalance().toPlainString());
                 })
         ;
+    }
+
+    @Order(4)
+    @Test
+    void testShowAll() {
+        client.get().uri("api/accounts").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$[0].person").isEqualTo("Andres")
+                .jsonPath("$[0].id").isEqualTo(1)
+                .jsonPath("$[0].balance").isEqualTo(900)
+                .jsonPath("$[1].person").isEqualTo("Jhon")
+                .jsonPath("$[1].id").isEqualTo(2)
+                .jsonPath("$[1].balance").isEqualTo(2100)
+                .jsonPath("$").isArray()
+                .jsonPath("$").value(hasSize(2));
+    }
+
+    @Order(5)
+    @Test
+    void testShowAll2() {
+        client.get().uri("api/accounts").exchange()
+                .expectStatus().isOk()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBodyList(Account.class)
+                .consumeWith(resp -> {
+                    List<Account> accounts = resp.getResponseBody();
+                    assertNotNull(accounts);
+                    assertEquals(2, accounts.size());
+                    assertEquals(1L, accounts.get(0).getId());
+                    assertEquals("Andres", accounts.get(0).getPerson());
+                    assertEquals(900, accounts.get(0).getBalance().intValue());
+                    assertEquals(2L, accounts.get(1).getId());
+                    assertEquals("Jhon", accounts.get(1).getPerson());
+                    assertEquals(2100, accounts.get(1).getBalance().intValue());
+                })
+                .hasSize(2)
+                .value(hasSize(2));
     }
 }
