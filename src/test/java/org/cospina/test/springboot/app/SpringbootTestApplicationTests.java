@@ -159,7 +159,5 @@ class SpringbootTestApplicationTests {
         assertEquals("3000", account.getBalance().toPlainString());
 
         verify(accountRepository).save(any());
-
-
     }
 }
