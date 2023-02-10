@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -109,6 +108,7 @@ class AccountControllerWebTestClientTests {
                 .expectBody(Account.class)
                 .consumeWith(resp -> {
                     Account account = resp.getResponseBody();
+                    assertNotNull(account);
                     assertEquals("Jhon", account.getPerson());
                     assertEquals("2100.00", account.getBalance().toPlainString());
                 })
@@ -152,5 +152,49 @@ class AccountControllerWebTestClientTests {
                 })
                 .hasSize(2)
                 .value(hasSize(2));
+    }
+
+    @Order(6)
+    @Test
+    void testSave() {
+        // Given
+        Account account = new Account(null, "Pepe", new BigDecimal("3000"));
+
+        // When
+        client.post().uri("api/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(account)
+                .exchange()
+                // Then
+                .expectStatus().isCreated()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody()
+                .jsonPath("$.id").isEqualTo(3)
+                .jsonPath("$.person").value(is("Pepe"))
+                .jsonPath("$.balance").isEqualTo(3000);
+    }
+
+    @Order(7)
+    @Test
+    void testSave2() {
+        // Given
+        Account account = new Account(null, "Pepa", new BigDecimal("3500"));
+
+        // When
+        client.post().uri("api/accounts")
+                .contentType(MediaType.APPLICATION_JSON)
+                .bodyValue(account)
+                .exchange()
+                // Then
+                .expectStatus().isCreated()
+                .expectHeader().contentType(MediaType.APPLICATION_JSON)
+                .expectBody(Account.class)
+                .consumeWith(resp -> {
+                    Account c = resp.getResponseBody();
+                    assertNotNull(c);
+                    assertEquals(4L, c.getId());
+                    assertEquals("Pepa", c.getPerson());
+                    assertEquals("3500", c.getBalance().toPlainString());
+                });
     }
 }
