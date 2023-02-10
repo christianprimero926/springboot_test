@@ -9,6 +9,8 @@ public interface AccountService {
     List<Account> findAll();
     Account findById(Long id);
     Account save(Account account);
+
+    void deleteById(Long id);
     int checkTotalTranfers(Long bankId);
     BigDecimal checkBalnce(Long accountId);
     void transfer(Long nSourceAccount, Long nTargetAccount, BigDecimal amount, Long bankId);

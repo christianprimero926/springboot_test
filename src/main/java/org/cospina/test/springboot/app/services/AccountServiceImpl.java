@@ -40,6 +40,12 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
+    public void deleteById(Long id) {
+        accountRepository.deleteById(id);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public int checkTotalTranfers(Long bankId) {
         Bank bank = bankRepository.findById(bankId).orElseThrow();
