@@ -3,6 +3,7 @@ package org.cospina.test.springboot.app.controllers;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.cospina.test.springboot.app.models.Account;
 import org.cospina.test.springboot.app.models.TransactionDTO;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +74,22 @@ class AccountControllerTestRestControllerTests {
         assertEquals(objectMapper.writeValueAsString(response), json);
 
 
+    }
+
+    @Test
+    @Order(2)
+    void testDetail() {
+        ResponseEntity<Account> responseEntity = client.getForEntity(createUri("/api/accounts/1"), Account.class);
+        Account account = responseEntity.getBody();
+
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+
+        assertNotNull(account);
+        assertEquals(1L, account.getId());
+        assertEquals("Andres", account.getPerson());
+        assertEquals("900.00", account.getBalance().toPlainString());
+        assertEquals(new Account(1L, "Andres", new BigDecimal("900.00")), account);
     }
 
     private String createUri(String uri) {
