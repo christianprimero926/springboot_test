@@ -23,6 +23,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Tag("integration_wc")
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class AccountControllerWebTestClientTests {
