@@ -95,6 +95,7 @@ class AccountControllerTestRestControllerTests {
     }
 
     @Test
+    @Order(3)
     void testShowAll() throws JsonProcessingException {
         ResponseEntity<Account[]> responseEntity = client.getForEntity(createUri("/api/accounts"), Account[].class);
         List<Account> accounts = Arrays.asList(responseEntity.getBody());
@@ -117,6 +118,20 @@ class AccountControllerTestRestControllerTests {
         assertEquals(2L, jsonNode.get(1).path("id").asLong());
         assertEquals("Jhon", jsonNode.get(1).path("person").asText());
         assertEquals("2100.0", jsonNode.get(1).path("balance").asText());
+    }
+
+    @Test
+    @Order(4)
+    void testSave() {
+        Account account = new Account(null, "Pepa", new BigDecimal("3800"));
+        ResponseEntity<Account> responseEntity = client.postForEntity(createUri("/api/accounts"), account, Account.class);
+
+        assertEquals(HttpStatus.CREATED, responseEntity.getStatusCode());
+        assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
+        Account createdAccount = responseEntity.getBody();
+        assertEquals(3L, createdAccount.getId());
+        assertEquals("Pepa", createdAccount.getPerson());
+        assertEquals("3800", createdAccount.getBalance().toPlainString());
     }
 
     private String createUri(String uri) {
