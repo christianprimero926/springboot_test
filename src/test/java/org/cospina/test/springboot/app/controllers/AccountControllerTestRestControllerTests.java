@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -104,10 +105,10 @@ class AccountControllerTestRestControllerTests {
         assertEquals(MediaType.APPLICATION_JSON, responseEntity.getHeaders().getContentType());
 
         assertEquals(2, accounts.size());
-        assertEquals("Andres",accounts.get(0).getPerson());
+        assertEquals("Andres", accounts.get(0).getPerson());
         assertEquals(1L, accounts.get(0).getId());
         assertEquals("900.00", accounts.get(0).getBalance().toPlainString());
-        assertEquals("Jhon",accounts.get(1).getPerson());
+        assertEquals("Jhon", accounts.get(1).getPerson());
         assertEquals(2L, accounts.get(1).getId());
         assertEquals("2100.00", accounts.get(1).getBalance().toPlainString());
 
@@ -132,6 +133,34 @@ class AccountControllerTestRestControllerTests {
         assertEquals(3L, createdAccount.getId());
         assertEquals("Pepa", createdAccount.getPerson());
         assertEquals("3800", createdAccount.getBalance().toPlainString());
+    }
+
+    @Test
+    @Order(5)
+    void testDelete() {
+        ResponseEntity<Account[]> responseEntity = client.getForEntity(createUri("/api/accounts"), Account[].class);
+        assertNotNull(responseEntity.getBody());
+        List<Account> accounts = Arrays.asList(responseEntity.getBody());
+        assertEquals(3, accounts.size());
+
+        //client.delete(createUri("/api/accounts/3"));
+        Map<String, Long> pathVariables = new HashMap<>();
+        pathVariables.put("id", 3L);
+        ResponseEntity<Void> exchange = client.exchange(createUri("/api/accounts/{id}"), HttpMethod.DELETE, null, Void.class,
+                pathVariables);
+
+        assertEquals(HttpStatus.NO_CONTENT, exchange.getStatusCode());
+        assertFalse(exchange.hasBody());
+
+        responseEntity = client.getForEntity(createUri("/api/accounts"), Account[].class);
+        assertNotNull(responseEntity.getBody());
+        accounts = Arrays.asList(responseEntity.getBody());
+
+        assertEquals(2, accounts.size());
+
+        ResponseEntity<Account> responseDetail = client.getForEntity(createUri("/api/accounts/3"), Account.class);
+        assertEquals(HttpStatus.NOT_FOUND, responseDetail.getStatusCode());
+        assertFalse(responseDetail.hasBody());
     }
 
     private String createUri(String uri) {
